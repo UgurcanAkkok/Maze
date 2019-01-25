@@ -2,6 +2,7 @@
 #include <ctime>
 
 #define MAZE_SIZE 20
+#define CELL_SIZE 5
 
 class Maze;
 class Cell;
@@ -30,7 +31,7 @@ class Cell {
             if (y == 0)
                 up_edge = true;
         }
-        void draw();
+        void draw(int,int);
 };
 
 class Maze {
@@ -39,17 +40,6 @@ class Maze {
         int start_y;
         Cell maze_map[MAZE_SIZE][MAZE_SIZE];
     public:
-        Maze(){
-            for (int i = 0; i < MAZE_SIZE; i++){
-                for (int j = 0; j < MAZE_SIZE; j++){
-                    maze_map[i][j].init(i,j);
-                }
-            }
-            srand(time(NULL));
-            start_x = rand() % MAZE_SIZE;            
-            start_y = rand() % MAZE_SIZE;            
-
-        }
 
         void rand_gen(int x,int y){
             maze_map[x][y].visited = true;
@@ -138,4 +128,18 @@ class Maze {
 
         }
 
+        Maze(){
+            for (int i = 0; i < MAZE_SIZE; i++){
+                for (int j = 0; j < MAZE_SIZE; j++){
+                    maze_map[i][j].init(i,j);
+                }
+            }
+            srand(time(NULL));
+            start_x = rand() % MAZE_SIZE;            
+            start_y = rand() % MAZE_SIZE;            
+            rand_gen(start_x,start_y);
+
+        }
+
+        void draw(int,int);
 };
