@@ -16,6 +16,7 @@ class Cell {
         bool down_edge = false;
 
         bool visited = false;
+        bool tracked = false;
 
         bool left_open = false;
         bool right_open = false;
@@ -43,12 +44,84 @@ class Maze {
     public:
         void visit(int x, int y, int direction);
         void backtrack(int x, int y, int direction);
+        Cell adjacent(int,int,directions);
 
         void rand_gen(int x,int y){
             maze_map[x][y].visited = true;
-            int unvisited_ways [4] {};
+            int unvisited_ways [4] {-1,-1,-1,-1};
             for (int i = 0; i < 4; i++){
+                Cell next_cell = adjacent(x,y,(directions)i);
+                if(!next_cell.visited){
+                    unvisited_ways[i] = (directions)i;
+                }
             }
+            bool no_unvisited = true;
+            for (int i : unvisited_ways){
+                if ( i != -1) no_unvisited = false;
+            }
+
+            if (!no_unvisited){
+                int way_index = rand() % 4;
+                while(unvisited_ways[way_index] == -1){
+                way_index = rand() % 4;
+                }
+                directions direction = (directions) unvisited_ways[way_index];
+                visit(x,y,direction);
+                switch (direction){
+                    case right:
+                        rand_gen(x + 1, y);
+                        break;
+                    case left:
+                        rand_gen(x - 1, y);
+                        break;
+                    case up:
+                        rand_gen(x, y - 1);
+                        break;
+                    case down:
+                        rand_gen(x, y + 1);
+                        break;
+                }
+
+            }
+            else {
+                bool no_untracked = true;
+                int untracked_ways [4] {-1,-1,-1,-1};
+                for (int d = 0; d < 4; d++){
+                    Cell next_cell = adjacent(x,y, (directions)d);
+                    if (!next_cell.tracked){
+                        untracked_ways[d] = (directions)d;
+                    }
+                }
+                for (int i :unvisited_ways){
+                    if (i != -1) no_untracked = true;
+                }
+                if (!no_untracked){
+                    int way_index = rand() % 4;
+                    while (untracked_ways[way_index] == -1){
+                        way_index = rand() % 4;
+                    }
+                    directions direction = (directions) untracked_ways[way_index];
+                    backtrack(x,y,direction);
+                    switch (direction){
+                        case right:
+                            rand_gen(x + 1, y);
+                            break;
+                        case left:
+                            rand_gen(x - 1, y);
+                            break;
+                        case up:
+                            rand_gen(x, y - 1);
+                            break;
+                        case down:
+                            rand_gen(x, y + 1);
+                            break;
+                    }
+                }
+                else return;
+                
+            }
+
+
         }
 
         Maze(){
@@ -89,40 +162,42 @@ class Maze {
 
         }
 
-        Cell adjacent(int x, int y,directions d){
-            switch (d){
-                case right: 
-                    if (x < MAZE_SIZE){
-                        return maze_map[x + 1][y];
-                    }
-                    else {
-                        return maze_map[x][y];
-                    }
-                case left:
-                    if (x > 0){
-                        return maze_map[x - 1][y];
-                    }
-                    else {
-                        return maze_map[x][y];
-                    }
-                case up:
-                    if (y > 0){
-                        return maze_map[x][y - 1];
-                    }
-                    else {
-                        return maze_map[x][y];
-                    }
-                case down:
-                    if (y < MAZE_SIZE){
-                        return maze_map[x][y + 1];
-                    }
-                    else {
-                        return maze_map[x][y];
-                    }
-            }
-        }
-
 
 
         void draw(int,int);
 };
+
+
+Cell Maze::adjacent(int x, int y,directions d){
+    switch (d){
+        case right: 
+            if (x < MAZE_SIZE){
+                return maze_map[x + 1][y];
+            }
+            else {
+                return maze_map[x][y];
+            }
+        case left:
+            if (x > 0){
+                return maze_map[x - 1][y];
+            }
+            else {
+                return maze_map[x][y];
+            }
+        case up:
+            if (y > 0){
+                return maze_map[x][y - 1];
+            }
+            else {
+                return maze_map[x][y];
+            }
+        case down:
+            if (y < MAZE_SIZE){
+                return maze_map[x][y + 1];
+            }
+            else {
+                return maze_map[x][y];
+            }
+    }
+}
+
