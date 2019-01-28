@@ -5,6 +5,8 @@
 
 #include "./maze_gen.cpp"
 
+#define DEBUG false
+
 void Cell::draw(int x, int y){
     ALLEGRO_COLOR color_wall = al_map_rgb_f(1,1,1);
     if (this->right_open == false){
@@ -55,15 +57,19 @@ int main(){
     init(display,"display");
 
     al_register_event_source(events, al_get_timer_event_source(timer));
+    al_register_event_source(events, al_get_display_event_source(display));
 
+    if (DEBUG) std::cout << "Started generation of maze" << std::endl;
     Maze maze;
+    if (DEBUG) std::cout << "Finished generation of maze" << std::endl;
 
     ALLEGRO_EVENT event;
     bool finish = false;
     bool redraw = true;
+    al_start_timer(timer);
     while (true){
         al_wait_for_event(events, &event);
-
+        if (DEBUG) std::cout << "Got the event" << std::endl;
         switch(event.type){
             case ALLEGRO_EVENT_TIMER:
                 redraw = true;
@@ -75,7 +81,9 @@ int main(){
 
         if (redraw && al_is_event_queue_empty(events)){
             al_clear_to_color(al_map_rgb_f(0,0,0));
+            if (DEBUG) std::cout << "Drawing the maze.." << std::endl;
             maze.draw(0,0);
+            if (DEBUG) std::cout << "Finished drawing the maze.." << std::endl;
 
             al_flip_display();
             redraw = false;

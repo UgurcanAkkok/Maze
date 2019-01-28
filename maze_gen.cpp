@@ -2,7 +2,7 @@
 #include <ctime>
 
 #define MAZE_SIZE 8
-#define CELL_SIZE 5
+#define CELL_SIZE 10
 
 class Maze;
 class Cell;
@@ -42,16 +42,88 @@ class Maze {
         int start_y;
         Cell maze_map[MAZE_SIZE][MAZE_SIZE];
     public:
-        void visit(int x, int y, directions d);
-        void backtrack(int x, int y, directions d);
-        Cell adjacent(int,int,directions);
+
+        Cell * adjacent(int x, int y,directions d){
+            switch (d){
+                case right: 
+                    if (x < MAZE_SIZE){
+                        return &maze_map[x + 1][y];
+                    }
+                    else {
+                        return &maze_map[x][y];
+                    }
+                case left:
+                    if (x > 0){
+                        return &maze_map[x - 1][y];
+                    }
+                    else {
+                        return &maze_map[x][y];
+                    }
+                case up:
+                    if (y > 0){
+                        return &maze_map[x][y - 1];
+                    }
+                    else {
+                        return &maze_map[x][y];
+                    }
+                case down:
+                    if (y < MAZE_SIZE){
+                        return &maze_map[x][y + 1];
+                    }
+                    else {
+                        return &maze_map[x][y];
+                    }
+            }
+        }
+
+        void visit(int x, int y, directions direction){
+            Cell * cell = &maze_map[x][y];
+            switch(direction){
+                case right:
+                    cell->right_open = true;
+                    break;
+                case left:
+                    cell->left_open = true;
+                    break;
+                case down:
+                    cell->down_open = true;
+                    break;
+                case up:
+                    cell->up_open = true;
+                    break;
+            }
+
+            Cell * next_cell =  adjacent(x,y,direction);
+            next_cell->visited = true;
+            switch(direction){
+                case left:
+                    next_cell->right_open = true;
+                    break;
+                case right:
+                    next_cell->left_open = true;
+                    break;
+                case up:
+                    next_cell->down_open = true;
+                    break;
+                case down:
+                    next_cell->up_open = true;
+                    break;
+            }
+
+        }
+
+        void backtrack(int x, int y, directions d){
+            Cell * next_cell = adjacent(x,y,d);
+            next_cell->tracked = true;
+        }
+
 
         void rand_gen(int x,int y){
             maze_map[x][y].visited = true;
             int unvisited_ways [4] {-1,-1,-1,-1};
             for (int i = 0; i < 4; i++){
-                Cell next_cell = adjacent(x,y,(directions)i);
-                if(!next_cell.visited){
+                Cell * next_cell = adjacent(x,y,(directions)i);
+                if(!next_cell->visited){
                     unvisited_ways[i] = (directions)i;
                 }
             }
@@ -87,8 +159,8 @@ class Maze {
                 bool no_untracked = true;
                 int untracked_ways [4] {-1,-1,-1,-1};
                 for (int d = 0; d < 4; d++){
-                    Cell next_cell = adjacent(x,y, (directions)d);
-                    if (!next_cell.tracked){
+                    Cell * next_cell = adjacent(x,y, (directions)d);
+                    if (!next_cell->tracked){
                         untracked_ways[d] = (directions)d;
                     }
                 }
@@ -166,60 +238,4 @@ class Maze {
 
         void draw(int,int);
 };
-
-
-Cell Maze::adjacent(int x, int y,directions d){
-    switch (d){
-        case right: 
-            if (x < MAZE_SIZE){
-                return maze_map[x + 1][y];
-            }
-            else {
-                return maze_map[x][y];
-            }
-        case left:
-            if (x > 0){
-                return maze_map[x - 1][y];
-            }
-            else {
-                return maze_map[x][y];
-            }
-        case up:
-            if (y > 0){
-                return maze_map[x][y - 1];
-            }
-            else {
-                return maze_map[x][y];
-            }
-        case down:
-            if (y < MAZE_SIZE){
-                return maze_map[x][y + 1];
-            }
-            else {
-                return maze_map[x][y];
-            }
-    }
-}
-
-void Maze::visit(int x, int y, directions direction){
-    Cell next_cell =  adjacent(x,y,direction);
-    next_cell.visited = true;
-    switch(direction){
-        case left:
-            next_cell.right_open = true;
-            break;
-        case right:
-            next_cell.left_open = true;
-        case up:
-            next_cell.down_open = true;
-        case down:
-            next_cell.up_open = true;
-    }
-
-}
-
-void Maze::backtrack(int x, int y, directions d){
-    Cell next_cell = adjacent(x,y,d);
-    next_cell.tracked = true;
-}
 

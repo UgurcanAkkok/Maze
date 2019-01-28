@@ -10,7 +10,7 @@ draw: $(OBJECTS)
 maze_gen.o: maze_gen.cpp
 	$(CXX) $(CXXFLAGS) -c maze_gen.cpp
 
-draw_maze.o: draw_maze.cpp
+draw_maze.o: draw_maze.cpp maze_gen.cpp
 	$(CXX) $(CXXFLAGS) -c draw_maze.cpp
 
 clean:
