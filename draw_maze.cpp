@@ -9,6 +9,9 @@
 
 void Cell::draw(int x, int y){
     ALLEGRO_COLOR color_wall = al_map_rgb_f(1,1,1);
+    if (this->tracked){
+        color_wall = al_map_rgb_f(1,0,1);
+    }
     if (this->right_open == false){
         al_draw_line(x + CELL_SIZE, y, x + CELL_SIZE, y + CELL_SIZE,color_wall,1);
     }
@@ -53,7 +56,7 @@ int main(){
     al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
     al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
 
-    ALLEGRO_DISPLAY * display = al_create_display(200,200);
+    ALLEGRO_DISPLAY * display = al_create_display(MAZE_SIZE * CELL_SIZE + 10,MAZE_SIZE * CELL_SIZE + 10);
     init(display,"display");
 
     al_register_event_source(events, al_get_timer_event_source(timer));
@@ -82,7 +85,7 @@ int main(){
         if (redraw && al_is_event_queue_empty(events)){
             al_clear_to_color(al_map_rgb_f(0,0,0));
             if (DEBUG) std::cout << "Drawing the maze.." << std::endl;
-            maze.draw(0,0);
+            maze.draw(5,5);
             if (DEBUG) std::cout << "Finished drawing the maze.." << std::endl;
 
             al_flip_display();
