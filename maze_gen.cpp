@@ -7,6 +7,7 @@
 class Maze;
 class Cell;
 
+enum directions {right = 0, left, up, down};
 class Cell {
     public:
         bool left_edge = false;
@@ -40,92 +41,14 @@ class Maze {
         int start_y;
         Cell maze_map[MAZE_SIZE][MAZE_SIZE];
     public:
+        void visit(int x, int y, int direction);
+        void backtrack(int x, int y, int direction);
 
         void rand_gen(int x,int y){
             maze_map[x][y].visited = true;
-            bool correct_way = false;
-            int direction;
-            if (maze_map[x - 1][y].visited && maze_map[x][y - 1].visited
-                    && maze_map[x + 1][y].visited && maze_map[x][y + 1].visited)
-                return;
-
-            while (!correct_way){
-                direction = rand() % 4 + 1; // 1:left 2:down 3:right 4:up
-                switch(direction){
-                    case 1:
-                        if (maze_map[x][y].left_edge == true){
-                            correct_way = false;
-                            break;
-                        }
-                        if (maze_map[x - 1][y].visited == false ){
-                            correct_way = true;
-                            maze_map[x][y].left_open = true;
-                            maze_map[x - 1][y].right_open = true;
-                        }
-                        else {
-                            correct_way = false;
-                        }
-
-                        if (correct_way){
-                            rand_gen(x - 1, y);
-                        }
-                        break;
-
-                    case 2:
-                        if (maze_map[x][y].down_edge == true){
-                            correct_way = false;
-                            break;
-                        }
-                        if (maze_map[x][y + 1].visited == false && maze_map[x][y].down_edge != true){
-                            correct_way = true;
-                            maze_map[x][y].down_open = true;
-                            maze_map[x][y + 1].up_open = true;
-                        }
-                        else {
-                            correct_way = false;
-                        }
-                        if (correct_way){
-                            rand_gen(x, y + 1);
-                        }
-                        break;
-                    case 3:
-                        if (maze_map[x][y].right_edge == true){
-                            correct_way = false;
-                            break;
-                        }
-                        if (maze_map[x + 1][y].visited == false && maze_map[x][y].right_edge != true){
-                            correct_way = true;
-                            maze_map[x][y].right_open = true;
-                            maze_map[x + 1][y].left_open = true;
-                        }
-                        else {
-                            correct_way = false;
-                        }
-                        if (correct_way){
-                            rand_gen(x + 1, y);
-                        }
-                        break;
-                    case 4:
-                        if (maze_map[x][y].up_edge == true){
-                            correct_way = false;
-                            break;
-                        }
-                        if (maze_map[x][y - 1].visited == false && maze_map[x][y].up_edge != true){
-                            correct_way = true;
-                            maze_map[x][y].up_open = true;
-                            maze_map[x][y - 1].down_open = true;
-                        }
-                        else {
-                            correct_way = false;
-                        }
-                        if (correct_way){
-                            rand_gen(x, y - 1);
-                        }
-                        break;
-                }
-            
+            int unvisited_ways [4] {};
+            for (int i = 0; i < 4; i++){
             }
-
         }
 
         Maze(){
@@ -137,9 +60,69 @@ class Maze {
             srand(time(NULL));
             start_x = rand() % MAZE_SIZE;            
             start_y = rand() % MAZE_SIZE;            
+            switch (rand() % 2){
+                case 0:
+                    start_y = rand() % (MAZE_SIZE - 1) + 1;
+                    switch (rand() % 2){
+                        case 0:
+                            start_x = 0;
+                            break;
+                        case 1:
+                            start_x = MAZE_SIZE;
+                            break;
+                    }
+                    break;
+                case 1:
+                    start_x = rand() % (MAZE_SIZE - 1) + 1;
+                    switch (rand() % 2){
+                        case 0:
+                            start_y = 0;
+                            break;
+                        case 1:
+                            start_y = MAZE_SIZE;
+                            break;
+                    }
+                    break;
+            }
+
             rand_gen(start_x,start_y);
 
         }
+
+        Cell adjacent(int x, int y,directions d){
+            switch (d){
+                case right: 
+                    if (x < MAZE_SIZE){
+                        return maze_map[x + 1][y];
+                    }
+                    else {
+                        return maze_map[x][y];
+                    }
+                case left:
+                    if (x > 0){
+                        return maze_map[x - 1][y];
+                    }
+                    else {
+                        return maze_map[x][y];
+                    }
+                case up:
+                    if (y > 0){
+                        return maze_map[x][y - 1];
+                    }
+                    else {
+                        return maze_map[x][y];
+                    }
+                case down:
+                    if (y < MAZE_SIZE){
+                        return maze_map[x][y + 1];
+                    }
+                    else {
+                        return maze_map[x][y];
+                    }
+            }
+        }
+
+
 
         void draw(int,int);
 };
