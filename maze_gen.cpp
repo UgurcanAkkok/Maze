@@ -1,7 +1,7 @@
 #include <cmath>
 #include <ctime>
 
-#define MAZE_SIZE 20
+#define MAZE_SIZE 8
 #define CELL_SIZE 5
 
 class Maze;
@@ -42,8 +42,8 @@ class Maze {
         int start_y;
         Cell maze_map[MAZE_SIZE][MAZE_SIZE];
     public:
-        void visit(int x, int y, int direction);
-        void backtrack(int x, int y, int direction);
+        void visit(int x, int y, directions d);
+        void backtrack(int x, int y, directions d);
         Cell adjacent(int,int,directions);
 
         void rand_gen(int x,int y){
@@ -199,5 +199,27 @@ Cell Maze::adjacent(int x, int y,directions d){
                 return maze_map[x][y];
             }
     }
+}
+
+void Maze::visit(int x, int y, directions direction){
+    Cell next_cell =  adjacent(x,y,direction);
+    next_cell.visited = true;
+    switch(direction){
+        case left:
+            next_cell.right_open = true;
+            break;
+        case right:
+            next_cell.left_open = true;
+        case up:
+            next_cell.down_open = true;
+        case down:
+            next_cell.up_open = true;
+    }
+
+}
+
+void Maze::backtrack(int x, int y, directions d){
+    Cell next_cell = adjacent(x,y,d);
+    next_cell.tracked = true;
 }
 
