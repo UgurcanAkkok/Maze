@@ -3,8 +3,8 @@
 #include <iostream>
 #include <stack>
 
-#define MAZE_SIZE 100
-#define CELL_SIZE 5
+#define MAZE_SIZE 20
+#define CELL_SIZE 20
 #define DEBUG false
 
 class Maze;
@@ -34,6 +34,8 @@ class Maze {
     private:
         int start_x;
         int start_y;
+        int end_x;
+        int end_y;
         Cell maze_map[MAZE_SIZE][MAZE_SIZE];
         std::stack <Cell> track_stack;
     public:
