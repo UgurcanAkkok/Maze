@@ -5,8 +5,6 @@
 
 #include "./maze_gen.cpp"
 
-#define DEBUG false
-
 void Cell::draw(int x, int y){
     ALLEGRO_COLOR color_wall = al_map_rgb_f(1,1,1);
     if (this->right_open == false){
@@ -21,14 +19,6 @@ void Cell::draw(int x, int y){
     if (this->down_open == false){
         al_draw_line(x, y + CELL_SIZE, x + CELL_SIZE, y + CELL_SIZE,color_wall,1);
     }
-    
-    if (this->visited){
-        al_draw_line(x + 5, y + 5, x + CELL_SIZE - 5, y + CELL_SIZE - 5, al_map_rgb_f(1,0,0), 1);
-    }
-    if (this->tracked){
-        al_draw_line(x + CELL_SIZE - 5, y + 5, x + 5, y + CELL_SIZE - 5, al_map_rgb_f(0,0,1), 1);
-    }
-
 }
 
 void Maze::draw(int x, int y){

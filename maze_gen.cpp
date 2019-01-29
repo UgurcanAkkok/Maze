@@ -1,9 +1,11 @@
 #include <cmath>
 #include <ctime>
 #include <iostream>
+#include <stack>
 
-#define MAZE_SIZE 10
-#define CELL_SIZE 20
+#define MAZE_SIZE 100
+#define CELL_SIZE 5
+#define DEBUG false
 
 class Maze;
 class Cell;
@@ -11,28 +13,19 @@ class Cell;
 enum directions {right = 0, left, up, down};
 class Cell {
     public:
-        bool left_edge = false;
-        bool right_edge = false;
-        bool up_edge = false;
-        bool down_edge = false;
 
         bool visited = false;
-        bool tracked = false;
 
         bool left_open = false;
         bool right_open = false;
         bool up_open = false;
         bool down_open = false;
         
+        int x,y;
+        
         void init(int x, int y){
-            if (x == MAZE_SIZE)
-                right_edge = true;
-            if (x == 0)
-                left_edge = true;
-            if (y == MAZE_SIZE)
-                down_edge = true;
-            if (y == 0)
-                up_edge = true;
+            this->x = x;
+            this->y = y;
         }
         void draw(int,int);
 };
@@ -42,6 +35,7 @@ class Maze {
         int start_x;
         int start_y;
         Cell maze_map[MAZE_SIZE][MAZE_SIZE];
+        std::stack <Cell> track_stack;
     public:
 
         Cell * adjacent(int x, int y,directions d){
@@ -115,125 +109,49 @@ class Maze {
 
         }
 
-        void backtrack(int x, int y, directions d){
-            Cell * cell = &maze_map[x][y];
-            cell->tracked = true;
-            switch(d){
-                case right:
-                    cell->right_open = true;
-                    break;
-                case left:
-                    cell->left_open = true;
-                    break;
-                case down:
-                    cell->down_open = true;
-                    break;
-                case up:
-                    cell->up_open = true;
-                    break;
-            }
-            Cell * next_cell = adjacent(x,y,d);
-            next_cell->tracked = true;
-            switch(d){
-                case left:
-                    next_cell->right_open = true;
-                    break;
-                case right:
-                    next_cell->left_open = true;
-                    break;
-                case up:
-                    next_cell->down_open = true;
-                    break;
-                case down:
-                    next_cell->up_open = true;
-                    break;
-            }
-        }
-
-
         void rand_gen(int x,int y){
             maze_map[x][y].visited = true;
-            int unvisited_ways [4] {-1,-1,-1,-1};
-            for (int i = 0; i < 4; i++){
-                Cell * next_cell = adjacent(x,y,(directions)i);
-                if(!next_cell->visited){
-                    unvisited_ways[i] = (directions)i;
-                }
-                if (x >= MAZE_SIZE -1){
-                    unvisited_ways[right] = -1;
-                }
-                else if (x <= 0){
-                    unvisited_ways[left] = -1;
-                }
-                if ( y >= MAZE_SIZE -1){
-                    unvisited_ways[down] = -1;
-                }
-                else if ( y <= 0){
-                    unvisited_ways[up] = -1;
+            bool all_cells_visited = true;
+            for (int i = 0; i < MAZE_SIZE; i++){
+                for (int j = 0; j < MAZE_SIZE; j++){
+                    if (maze_map[i][j].visited == false)
+                        all_cells_visited = false;
                 }
             }
-            bool no_unvisited = true;
-            for (int i : unvisited_ways){
-                if ( i != -1) no_unvisited = false;
-            }
-
-            if (!no_unvisited){
-                int way_index = rand() % 4;
-                while(unvisited_ways[way_index] == -1){
-                way_index = rand() % 4;
-                }
-                directions direction = (directions) unvisited_ways[way_index];
-                printf("Visiting from %i, %i to %i \n",x,y,direction);
-                visit(x,y,direction);
-                switch (direction){
-                    case right:
-                        rand_gen(x + 1, y);
-                        break;
-                    case left:
-                        rand_gen(x - 1, y);
-                        break;
-                    case up:
-                        rand_gen(x, y - 1);
-                        break;
-                    case down:
-                        rand_gen(x, y + 1);
-                        break;
-                }
-
-            }
-            else {
-                bool no_untracked = true;
-                int untracked_ways [4] {-1,-1,-1,-1};
-                for (int d = 0; d < 4; d++){
-                    Cell * next_cell = adjacent(x,y, (directions)d);
-                    if (!next_cell->tracked){
-                        untracked_ways[d] = (directions)d;
+            if (all_cells_visited == false){
+                int unvisited_ways [4] {-1,-1,-1,-1};
+                for (int i = 0; i < 4; i++){
+                    Cell * next_cell = adjacent(x,y,(directions)i);
+                    if(!next_cell->visited){
+                        unvisited_ways[i] = (directions)i;
+                    }
                     if (x >= MAZE_SIZE -1){
-                        untracked_ways[right] = -1;
+                        unvisited_ways[right] = -1;
                     }
                     else if (x <= 0){
-                        untracked_ways[left] = -1;
+                        unvisited_ways[left] = -1;
                     }
                     if ( y >= MAZE_SIZE -1){
-                        untracked_ways[down] = -1;
+                        unvisited_ways[down] = -1;
                     }
                     else if ( y <= 0){
-                        untracked_ways[up] = -1;
-                    }
+                        unvisited_ways[up] = -1;
                     }
                 }
-                
-                for (int i : untracked_ways){
-                    if (i != -1) no_untracked = false;
+                bool all_adj_visited = true;
+                for (int i : unvisited_ways){
+                    if ( i != -1) all_adj_visited = false;
                 }
-                if (!no_untracked){
+
+                if (!all_adj_visited){
                     int way_index = rand() % 4;
-                    while (untracked_ways[way_index] == -1){
-                        way_index = rand() % 4;
+                    while(unvisited_ways[way_index] == -1){
+                    way_index = rand() % 4;
                     }
-                    directions direction = (directions) untracked_ways[way_index];
-                    printf("Tracking from %i, %i to %i \n",x,y,direction);
-                    backtrack(x,y,direction);
+                    directions direction = (directions) unvisited_ways[way_index];
+                    if (DEBUG) printf("Visiting from %i, %i to %i \n",x,y,direction);
+                    track_stack.push(maze_map[x][y]);
+                    visit(x,y,direction);
                     switch (direction){
                         case right:
                             rand_gen(x + 1, y);
@@ -248,13 +166,17 @@ class Maze {
                             rand_gen(x, y + 1);
                             break;
                     }
+
                 }
                 else {
-                    return;
+                    Cell next_cell = track_stack.top();
+                    track_stack.pop();
+                    rand_gen(next_cell.x,next_cell.y);
                 }
-                
             }
-
+            else {
+                return;
+            }
 
         }
 
@@ -290,7 +212,7 @@ class Maze {
                     break;
             }
 
-            std::cout << "initial x: " << start_x << "initial y: " << start_y  << std::endl;
+            if (DEBUG) std::cout << "initial x: " << start_x << "initial y: " << start_y  << std::endl;
             rand_gen(start_x,start_y);
 
         }
