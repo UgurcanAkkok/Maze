@@ -74,6 +74,8 @@ class Maze {
                     else {
                         return &maze_map[x][MAZE_SIZE];
                     }
+                default:
+                    return &maze_map[x][y];
             }
         }
 
@@ -157,21 +159,17 @@ class Maze {
                 if(!next_cell->visited){
                     unvisited_ways[i] = (directions)i;
                 }
-                switch (x) {
-                    case MAZE_SIZE:
-                        unvisited_ways[right] = -1;
-                        break;
-                    case 0:
-                        unvisited_ways[left] = -1;
-                        break;
+                if (x >= MAZE_SIZE -1){
+                    unvisited_ways[right] = -1;
                 }
-                switch (y) {
-                    case MAZE_SIZE:
-                        unvisited_ways[down] = -1;
-                        break;
-                    case 0:
-                        unvisited_ways[up] = -1;
-                        break;
+                else if (x <= 0){
+                    unvisited_ways[left] = -1;
+                }
+                if ( y >= MAZE_SIZE -1){
+                    unvisited_ways[down] = -1;
+                }
+                else if ( y <= 0){
+                    unvisited_ways[up] = -1;
                 }
             }
             bool no_unvisited = true;
@@ -185,6 +183,7 @@ class Maze {
                 way_index = rand() % 4;
                 }
                 directions direction = (directions) unvisited_ways[way_index];
+                printf("Visiting from %i, %i to %i \n",x,y,direction);
                 visit(x,y,direction);
                 switch (direction){
                     case right:
@@ -209,39 +208,31 @@ class Maze {
                     Cell * next_cell = adjacent(x,y, (directions)d);
                     if (!next_cell->tracked){
                         untracked_ways[d] = (directions)d;
-                        std::cout << "There is some untracked path, i am tagging it"
-                            << untracked_ways[d]<< std::endl;
+                    if (x >= MAZE_SIZE -1){
+                        untracked_ways[right] = -1;
+                    }
+                    else if (x <= 0){
+                        untracked_ways[left] = -1;
+                    }
+                    if ( y >= MAZE_SIZE -1){
+                        untracked_ways[down] = -1;
+                    }
+                    else if ( y <= 0){
+                        untracked_ways[up] = -1;
+                    }
                     }
                 }
-                /*
-                switch (x){
-                    case MAZE_SIZE:
-                        untracked_ways[right] = -1;
-                        break;
-                    case 0:
-                        untracked_ways[left] = -1;
-                        break;
-                }
-                switch (y){
-                    case MAZE_SIZE:
-                        untracked_ways[down] = -1;
-                        break;
-                    case 0:
-                        untracked_ways[up] = -1;
-                        break;
-                }
-                */
                 
                 for (int i : untracked_ways){
                     if (i != -1) no_untracked = false;
                 }
                 if (!no_untracked){
-                    std::cout << "There is some untracked path and i am going one of them" << std::endl;
                     int way_index = rand() % 4;
                     while (untracked_ways[way_index] == -1){
                         way_index = rand() % 4;
                     }
                     directions direction = (directions) untracked_ways[way_index];
+                    printf("Tracking from %i, %i to %i \n",x,y,direction);
                     backtrack(x,y,direction);
                     switch (direction){
                         case right:
@@ -259,7 +250,6 @@ class Maze {
                     }
                 }
                 else {
-                    std::cout << "There is no untracked path and i am going returning" << std::endl;
                     return;
                 }
                 
@@ -275,33 +265,32 @@ class Maze {
                 }
             }
             srand(time(NULL));
-            start_x = rand() % MAZE_SIZE;            
-            start_y = rand() % MAZE_SIZE;            
             switch (rand() % 2){
                 case 0:
-                    start_y = rand() % (MAZE_SIZE - 1) + 1;
+                    start_y = (rand() % (MAZE_SIZE - 1)) + 1;
                     switch (rand() % 2){
                         case 0:
                             start_x = 0;
                             break;
                         case 1:
-                            start_x = MAZE_SIZE;
+                            start_x = MAZE_SIZE - 1;
                             break;
                     }
                     break;
                 case 1:
-                    start_x = rand() % (MAZE_SIZE - 1) + 1;
+                    start_x = 1 +(rand() % (MAZE_SIZE - 1));
                     switch (rand() % 2){
                         case 0:
                             start_y = 0;
                             break;
                         case 1:
-                            start_y = MAZE_SIZE;
+                            start_y = MAZE_SIZE - 1;
                             break;
                     }
                     break;
             }
 
+            std::cout << "initial x: " << start_x << "initial y: " << start_y  << std::endl;
             rand_gen(start_x,start_y);
 
         }
