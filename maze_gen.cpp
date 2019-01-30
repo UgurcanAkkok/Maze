@@ -36,9 +36,9 @@ class Maze {
         int start_y;
         int end_x;
         int end_y;
-        Cell maze_map[MAZE_SIZE][MAZE_SIZE];
         std::stack <Cell> track_stack;
     public:
+        Cell maze_map[MAZE_SIZE][MAZE_SIZE];
 
         Cell * adjacent(int x, int y,directions d){
             switch (d){
