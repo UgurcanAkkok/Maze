@@ -12,6 +12,7 @@ class Environment {
     public:
         void draw();
         void map_view_to_graphics();
+
         void create_view(Maze * maze){
             int corridor_length = 0;
             while (true) {
@@ -62,14 +63,35 @@ class Environment {
                         view[i][0] = *maze->adjacent(view_cell.x, view_cell.y, left);
                         break;
                 }
+                view[i][1] = view_cell;
+
+                switch(d){
+                    case right:
+                        view[i][2] = *maze->adjacent(view_cell.x, view_cell.y, down);
+                        break;
+                    case left:
+                        view[i][2] = *maze->adjacent(view_cell.x, view_cell.y, up);
+                        break;
+                    case down:
+                        view[i][2] = *maze->adjacent(view_cell.x, view_cell.y, left);
+                        break;
+                    case up:
+                        view[i][2] = *maze->adjacent(view_cell.x, view_cell.y, right);
+                        break;
+                }
                 view_cell = *maze->adjacent(view_cell.x, view_cell.y, d);
             }
 
         }
+
         Environment(Maze * maze, int x, int y, directions d) : x(x), y(y), d(d) {
             create_view(maze);
             map_view_to_graphics();
             draw();
+        }
+
+        ~Environment(){
+            delete [] view;
         }
     
 };
