@@ -3,6 +3,74 @@
 #include <allegro5/allegro_primitives.h>
 
 #include "maze_gen.cpp"
+
+#define WIDTH 1280
+#define HEIGHT 720
+
+class Object {
+    protected:
+    ALLEGRO_VERTEX * vertices;
+    ALLEGRO_COLOR obj_color;
+
+    public:
+    void adjust(ALLEGRO_VERTEX * vertices,int vertex_count, int d){
+        for (int i = 0; i < vertex_count; i++){
+            if ((vertices + i)->x >= (WIDTH / 2)){
+                (vertices + i)->x -= d;
+            }
+            else {
+                (vertices + i)->x += d;
+            }
+
+            if ((vertices + i)->y >= (HEIGHT / 2)){
+                (vertices + i)->y -= d;
+            }
+            else {
+                (vertices + i)->y += d;
+            }
+        }
+    }
+};
+
+class Floor : protected Object {
+
+};
+
+class Wall : protected Object {
+    public:
+    Wall (int x, int y, int w, int h, int d){
+        vertices = new ALLEGRO_VERTEX [4];
+        obj_color = al_map_rgb(230, 46, 0);
+
+        vertices[0].x = x;
+        vertices[0].y = y;
+        vertices[0].color = obj_color;
+        
+        vertices[1].x = x + w;
+        vertices[1].y = y;
+        vertices[1].color = obj_color;
+
+        vertices[2].x = x + w;
+        vertices[2].y = y + h;
+        vertices[2].color = obj_color;
+
+        vertices[3].x = x;
+        vertices[3].y = y + h;
+        vertices[3].color = obj_color;
+
+        adjust(vertices, 4, d);
+
+        }
+    
+    void draw(){
+        al_draw_prim(vertices, NULL, NULL, 0, 3, ALLEGRO_PRIM_TRIANGLE_LIST);
+    }
+    ~Wall (){
+        delete [] vertices;
+    }
+
+};
+
 class Environment {
     private:
         int x,y;
