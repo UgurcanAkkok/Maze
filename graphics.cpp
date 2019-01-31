@@ -13,15 +13,28 @@ class Object {
     ALLEGRO_COLOR obj_color;
 
     public:
-    void adjust(ALLEGRO_VERTEX * vertices,int vertex_count, int d){
+    void adjust(ALLEGRO_VERTEX * vertices,int vertex_count,int d){
+        int base_x = 0;
+        int base_y = 0;
+        int base_d = d;
         for (int i = 0; i < vertex_count; i++){
+            base_x += vertices[i].x;
+        }
+        base_x /= vertex_count;
+        for (int i = 0; i < vertex_count; i++){
+            base_y += vertices[i].y;
+        }
+        base_y /= vertex_count;
+        for (int i = 0; i < vertex_count; i++){
+            d = vertices[i].x - base_d;
             if ((vertices + i)->x >= (WIDTH / 2)){
                 (vertices + i)->x -= d;
             }
             else {
                 (vertices + i)->x += d;
             }
-
+            
+            d = vertices[i].y - base_d;
             if ((vertices + i)->y >= (HEIGHT / 2)){
                 (vertices + i)->y -= d;
             }
@@ -33,12 +46,39 @@ class Object {
 };
 
 class Floor : protected Object {
+    public:
+        Floor(ALLEGRO_COLOR color = al_map_rgb(51, 10, 0)){
+            vertices = new ALLEGRO_VERTEX [4];
+            obj_color = color;
+            vertices[0].x = 0;
+            vertices[0].y = 0;
+            vertices[0].color = obj_color;
+            
+            vertices[1].x = WIDTH;
+            vertices[1].y = 0;
+            vertices[1].color = obj_color;
 
+            vertices[2].x = WIDTH;
+            vertices[2].y = HEIGHT;
+            vertices[2].color = obj_color;
+
+            vertices[3].x = 0;
+            vertices[3].y = HEIGHT;
+            vertices[3].color = obj_color;
+        }
+        
+        void draw(){
+            al_draw_prim(vertices, NULL, NULL, 0, 3, ALLEGRO_PRIM_TRIANGLE_LIST);
+        }
+
+        ~Floor(){
+            delete [] vertices;
+        }
 };
 
 class Wall : protected Object {
     public:
-    Wall (int x, int y, int w, int h, int d){
+    Wall (int x, int y, int d, int w = 100, int h = 100){
         vertices = new ALLEGRO_VERTEX [4];
         obj_color = al_map_rgb(230, 46, 0);
 
@@ -61,9 +101,13 @@ class Wall : protected Object {
         adjust(vertices, 4, d);
 
         }
-    
+
     void draw(){
         al_draw_prim(vertices, NULL, NULL, 0, 3, ALLEGRO_PRIM_TRIANGLE_LIST);
+        for (int i = 0; i < 4; i++){
+            vertices[i].color = al_map_rgb(0,0,0);
+        }
+        al_draw_prim(vertices, NULL, NULL, 0, 3, ALLEGRO_PRIM_LINE_LIST);
     }
     ~Wall (){
         delete [] vertices;
@@ -76,11 +120,13 @@ class Environment {
         int x,y;
         directions d;
         Cell ** view;
+        Floor ground;
 
     public:
-        void draw();
-        void map_view_to_graphics();
-
+        void draw(){
+            ground.draw();
+            
+        }
         void create_view(Maze * maze){
             int corridor_length = 0;
             while (true) {
@@ -154,7 +200,6 @@ class Environment {
 
         Environment(Maze * maze, int x, int y, directions d) : x(x), y(y), d(d) {
             create_view(maze);
-            map_view_to_graphics();
             draw();
         }
 
