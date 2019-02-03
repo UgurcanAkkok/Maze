@@ -62,6 +62,67 @@ struct MAZE_VERTEX {
        }
 
 };
+class Plane {
+    int w, h;
+
+    public:
+        MAZE_VERTEX vertices [4];
+        MAZE_VERTEX rotate_center;
+        Plane (int x0, int y0, int w, int h) : w(w), h(h) {
+            vertices[0].x = x0;
+            vertices[0].y = y0;
+            MAZE_VERTEX rotate_center;
+            int avg_x = 0, avg_z = 0, avg_y = 0;
+            for (int i = 0; i < 4; i++){
+                avg_x += vertices[i].x;
+                avg_y += vertices[i].y;
+                avg_z += vertices[i].z;
+            }
+            avg_x /= 4;
+            avg_y /= 4;
+            avg_z /= 4;
+            rotate_center.x = avg_x;
+            rotate_center.y = avg_y;
+            rotate_center.z = avg_z;
+
+        }
+        void fill_color(ALLEGRO_COLOR color){
+            for (int i = 0; i < 4; i++){
+                vertices[i].color = color;
+            }
+        }
+        void rotate_z (int angle){
+            for (int i = 0; i < 4; i++){
+                vertices[i].rotate_z(rotate_center, angle);
+            }
+        }
+        void rotate_y (int angle){
+            for (int i = 0; i < 4; i++){
+                vertices[i].rotate_y(rotate_center, angle);
+            }
+        }
+        void rotate_x (int angle){
+            for (int i = 0; i < 4; i++){
+                vertices[i].rotate_x(rotate_center, angle);
+            }
+        }
+        void move_x (int d){
+            for (int i = 0; i < 4; i++){
+                vertices[i].move_x(d);
+            }
+        }
+        void move_y (int d){
+            for (int i = 0; i < 4; i++){
+                vertices[i].move_y(d);
+            }
+        }
+        void move_z (int d){
+            for (int i = 0; i < 4; i++){
+                vertices[i].move_z(d);
+            }
+        }
+        
+};
 
 class Environment {
     private:
